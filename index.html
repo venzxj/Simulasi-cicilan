@@ -217,16 +217,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
     <input type="range" id="pinjamanSlider" min="100000" max="50000000" step="100000" value="1000000" oninput="syncInput(this);hitung()">
     <label class="form-label">Pilih Tenor</label>
     <div class="tenor-grid">
-      <button class="tenor-pill active" data-t="3" onclick="pilihTenor(this)"><span class="tp-m">3 bln</span><span class="tp-s">bunga 15%</span></button>
-      <button class="tenor-pill" data-t="6" onclick="pilihTenor(this)"><span class="tp-m">6 bln</span><span class="tp-s">bunga 30%</span></button>
-      <button class="tenor-pill" data-t="9" onclick="pilihTenor(this)"><span class="tp-m">9 bln</span><span class="tp-s">bunga 45%</span></button>
-      <button class="tenor-pill" data-t="12" onclick="pilihTenor(this)"><span class="tp-m">12 bln</span><span class="tp-s">bunga 60%</span></button>
+      <button class="tenor-pill active" data-t="3" onclick="pilihTenor(this)"><span class="tp-m">3 bln</span></button>
+      <button class="tenor-pill" data-t="6" onclick="pilihTenor(this)"><span class="tp-m">6 bln</span></button>
+      <button class="tenor-pill" data-t="9" onclick="pilihTenor(this)"><span class="tp-m">9 bln</span><</button>
+      <button class="tenor-pill" data-t="12" onclick="pilihTenor(this)"><span class="tp-m">12 bln</span></button>
     </div>
-  </div>
-  <div class="info-pills fu d1">
-    <div class="info-pill"><span class="dot"></span>Flat 5% / bulan</div>
-    <div class="info-pill" id="pTenor"><span class="dot"></span>Tenor 3 bulan</div>
-    <div class="info-pill" id="pBunga"><span class="dot"></span>Total bunga 15%</div>
   </div>
   <div class="result-banner fu d2">
     <div class="rb-label">Cicilan per bulan</div>
@@ -244,7 +239,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
     <div class="sched-row head"><div>Bln</div><div style="text-align:right">Cicilan</div><div style="text-align:right">Pokok</div><div style="text-align:right">Sisa</div></div>
     <div id="schedBody"></div>
   </div>
-  <button class="cta-btn fu d4">🚀 Ajukan Pinjaman Sekarang</button>
+  <button class="cta-btn fu d4">Created by Masjov</button>
 </div>
 
 <!-- PROFIL -->
