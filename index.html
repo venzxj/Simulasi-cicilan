@@ -323,7 +323,7 @@ function goTo(name){
 function nav(btn){document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
 
 // CALCULATOR
-const RATE=0.05;
+const RATE=0.049;
 let tenor=3;
 function fmtRp(n){return'Rp '+Math.round(n).toLocaleString('id-ID')}
 function getRaw(){return parseInt((document.getElementById('pinjamanInput').value||'0').replace(/\./g,'').replace(/[^0-9]/g,''))||0}
