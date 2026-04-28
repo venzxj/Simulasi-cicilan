@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CicilanKu – Kalkulator Pinjaman</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#00B14F;
+  --green-dark:#009040;
+  --green-light:#E6F7EE;
+  --green-mid:#00C85A;
+  --navy:#0D1B2A;
+  --navy2:#1A2E42;
+  --white:#FFFFFF;
+  --gray-50:#F7F8FA;
+  --gray-100:#EFF1F5;
+  --gray-200:#E2E5EB;
+  --gray-400:#9AA3B0;
+  --gray-600:#6B7280;
+  --gray-800:#1F2937;
+  --red:#EF4444;
+  --amber:#F59E0B;
+}
+html,body{height:100%;background:#F0F3F7;font-family:'Plus Jakarta Sans',sans-serif;color:var(--gray-800)}
+
+/* PHONE FRAME */
+.frame-outer{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 0;background:#E8EBF0}
+.phone{width:100%;max-width:420px;min-height:100vh;background:var(--gray-50);position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;background:var(--gray-50)}
+.screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
+
+/* STATUSBAR */
+.statusbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--navy);flex-shrink:0}
+.statusbar-time{color:#fff;font-size:14px;font-weight:700}
+.statusbar-icons{display:flex;gap:6px;align-items:center}
+.statusbar-icons svg{width:16px;height:16px;fill:white}
+
+/* HEADER */
+.header{background:var(--navy);padding:0 20px 28px;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(0,177,79,.12);right:-60px;top:-80px;pointer-events:none}
+.header::before{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(0,177,79,.08);right:60px;top:60px;pointer-events:none}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:relative;z-index:1}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;cursor:pointer}
+.header-greeting{color:rgba(255,255,255,.6);font-size:12px;font-weight:500}
+.header-name{color:#fff;font-size:16px;font-weight:700;margin-top:1px}
+.notif-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* SALDO CARD */
+.saldo-card{background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);border-radius:20px;padding:20px;margin:0 20px;margin-top:-6px;position:relative;z-index:2;box-shadow:0 8px 32px rgba(0,177,79,.35)}
+.saldo-label{color:rgba(255,255,255,.75);font-size:12px;font-weight:500;margin-bottom:4px}
+.saldo-amount{color:#fff;font-size:26px;font-weight:800;letter-spacing:-.5px}
+.saldo-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.saldo-action{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.saldo-action-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;transition:.2s}
+.saldo-action-icon:active{transform:scale(.93)}
+.saldo-action-icon svg{width:20px;height:20px;fill:white}
+.saldo-action span{color:rgba(255,255,255,.85);font-size:11px;font-weight:600}
+
+/* QUICK MENU */
+.section{padding:20px}
+.section-title{font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:14px}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.quick-item{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
+.quick-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:.2s}
+.quick-icon:active{transform:scale(.93)}
+.quick-icon svg{width:24px;height:24px}
+.quick-item span{font-size:11px;font-weight:600;color:var(--gray-600);text-align:center;line-height:1.3}
+.qi-green{background:#E6F7EE}
+.qi-green svg{fill:var(--green)}
+.qi-blue{background:#EFF6FF}
+.qi-blue svg{fill:#3B82F6}
+.qi-purple{background:#F5F3FF}
+.qi-purple svg{fill:#7C3AED}
+.qi-orange{background:#FFF7ED}
+.qi-orange svg{fill:#F97316}
+.qi-red{background:#FEF2F2}
+.qi-red svg{fill:#EF4444}
+.qi-teal{background:#F0FDFA}
+.qi-teal svg{fill:#0D9488}
+.qi-pink{background:#FDF2F8}
+.qi-pink svg{fill:#EC4899}
+.qi-amber{background:#FFFBEB}
+.qi-amber svg{fill:#D97706}
+
+/* PROMO BANNER */
+.promo-banner{margin:0 20px;border-radius:16px;background:linear-gradient(120deg,#0D1B2A 0%,#1A3A5C 100%);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;position:relative;overflow:hidden}
+.promo-banner::after{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(0,177,79,.15);right:-20px;top:-30px}
+.promo-text{z-index:1}
+.promo-label{color:rgba(255,255,255,.6);font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.promo-title{color:#fff;font-size:15px;font-weight:700;margin:2px 0 6px}
+.promo-pill{display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.promo-img{width:64px;height:64px;background:rgba(0,177,79,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;flex-shrink:0}
+.promo-img svg{width:36px;height:36px;fill:var(--green)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--gray-100);display:flex;z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 14px;cursor:pointer;border:none;background:none;transition:.15s}
+.nav-item svg{width:22px;height:22px;fill:var(--gray-400);transition:.15s}
+.nav-item span{font-size:10px;font-weight:600;color:var(--gray-400);transition:.15s}
+.nav-item.active svg{fill:var(--green)}
+.nav-item.active span{color:var(--green)}
+
+/* ============ SCREEN: PINJAMAN ============ */
+.calc-header-bar{background:var(--navy);padding:16px 20px 20px;display:flex;align-items:center;gap:14px}
+.back-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.back-btn svg{width:18px;height:18px;fill:white}
+.calc-header-bar h2{color:#fff;font-size:17px;font-weight:700}
+
+.form-card{background:#fff;border-radius:20px;margin:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.form-label{font-size:12px;font-weight:700;color:var(--gray-600);letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;display:block}
+.input-wrap{display:flex;align-items:center;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;overflow:hidden;margin-bottom:16px;transition:.2s}
+.input-wrap:focus-within{border-color:var(--green);background:#fff}
+.input-prefix-tag{padding:0 14px;font-size:14px;font-weight:700;color:var(--gray-600);background:var(--gray-100);border-right:1.5px solid var(--gray-200);height:48px;display:flex;align-items:center}
+.input-wrap input{border:none;outline:none;padding:0 14px;font-size:16px;font-weight:600;height:48px;flex:1;background:transparent;color:var(--gray-800);font-family:inherit;min-width:0}
+.input-wrap input::placeholder{color:var(--gray-400);font-weight:500}
+
+/* TENOR PILLS */
+.tenor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+.tenor-pill{padding:12px 6px;border:1.5px solid var(--gray-200);border-radius:14px;background:#fff;cursor:pointer;text-align:center;transition:.2s;font-family:inherit}
+.tenor-pill:active{transform:scale(.96)}
+.tenor-pill .tp-month{font-size:15px;font-weight:700;color:var(--gray-800);display:block}
+.tenor-pill .tp-sub{font-size:10px;font-weight:600;color:var(--gray-400);display:block;margin-top:2px}
+.tenor-pill.active{border-color:var(--green);background:var(--green-light)}
+.tenor-pill.active .tp-month{color:var(--green)}
+.tenor-pill.active .tp-sub{color:var(--green-dark)}
+
+/* RESULT CARD */
+.result-banner{background:linear-gradient(135deg,var(--green),var(--green-dark));border-radius:20px;margin:0 16px 4px;padding:20px;box-shadow:0 6px 24px rgba(0,177,79,.28)}
+.rb-label{color:rgba(255,255,255,.7);font-size:12px;font-weight:600;margin-bottom:4px}
+.rb-amount{color:#fff;font-size:30px;font-weight:800;letter-spacing:-.5px;margin-bottom:2px}
+.rb-sub{color:rgba(255,255,255,.7);font-size:12px;font-weight:500}
+.rb-divider{height:1px;background:rgba(255,255,255,.2);margin:14px 0}
+.rb-row{display:flex;justify-content:space-between;align-items:center}
+.rb-stat{}
+.rb-stat-label{color:rgba(255,255,255,.65);font-size:11px;font-weight:500}
+.rb-stat-val{color:#fff;font-size:14px;font-weight:700;margin-top:2px}
+
+/* INFO PILLS ROW */
+.info-pills{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+.info-pills::-webkit-scrollbar{display:none}
+.info-pill{background:#fff;border:1px solid var(--gray-200);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--gray-600);white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.info-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+/* SCHEDULE */
+.schedule-card{background:#fff;border-radius:20px;margin:0 16px 16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.schedule-title{padding:16px 20px 12px;font-size:13px;font-weight:700;color:var(--gray-800);border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between}
+.schedule-title span{color:var(--gray-400);font-weight:500;font-size:12px}
+.sched-row{display:grid;grid-template-columns:36px 1fr 1fr 1fr;gap:0;padding:13px 20px;border-bottom:1px solid var(--gray-50);align-items:center}
+.sched-row:last-child{border-bottom:none}
+.sched-row.head{background:var(--gray-50);padding:10px 20px}
+.sched-row.head div{font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.3px;text-transform:uppercase}
+.sched-bulan{width:28px;height:28px;border-radius:8px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--green)}
+.sched-val{font-size:13px;font-weight:600;color:var(--gray-800);text-align:right}
+.sched-sub{font-size:11px;color:var(--gray-400);font-weight:500;text-align:right}
+.sched-row.total-row{background:var(--green-light)}
+.sched-row.total-row .sched-val{color:var(--green-dark)}
+
+/* CTA BUTTON */
+.cta-btn{display:block;width:calc(100% - 32px);margin:4px 16px 16px;background:var(--green);color:#fff;border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;transition:.2s;letter-spacing:.2px}
+.cta-btn:active{transform:scale(.98);background:var(--green-dark)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:32px 20px}
+.empty-icon{width:72px;height:72px;border-radius:24px;background:var(--green-light);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-icon svg{width:36px;height:36px;fill:var(--green)}
+.empty-title{font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px}
+.empty-desc{font-size:13px;color:var(--gray-400);line-height:1.6}
+
+/* TRANSACTION LIST */
+.tx-list{padding:0 16px}
+.tx-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--gray-100)}
+.tx-item:last-child{border-bottom:none}
+.tx-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tx-icon svg{width:20px;height:20px}
+.tx-info{flex:1}
+.tx-name{font-size:13px;font-weight:700;color:var(--gray-800)}
+.tx-date{font-size:11px;color:var(--gray-400);margin-top:2px;font-weight:500}
+.tx-amount{font-size:14px;font-weight:700}
+.tx-amount.debit{color:var(--red)}
+.tx-amount.credit{color:var(--green)}
+
+/* PROFILE SCREEN */
+.profile-header{background:var(--navy);padding:20px;text-align:center;padding-bottom:32px}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;margin:0 auto 12px;border:3px solid rgba(255,255,255,.2)}
+.profile-name{color:#fff;font-size:18px;font-weight:700}
+.profile-phone{color:rgba(255,255,255,.6);font-size:13px;margin-top:4px}
+.menu-list{background:#fff;border-radius:20px;margin:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.menu-item{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--gray-50);cursor:pointer;transition:.15s}
+.menu-item:last-child{border-bottom:none}
+.menu-item:active{background:var(--gray-50)}
+.menu-item-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-item-icon svg{width:18px;height:18px}
+.menu-item-text{flex:1}
+.menu-item-title{font-size:14px;font-weight:600;color:var(--gray-800)}
+.menu-item-sub{font-size:12px;color:var(--gray-400);margin-top:1px}
+.menu-item-arrow svg{width:16px;height:16px;fill:var(--gray-300)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease both}
+.delay-1{animation-delay:.05s}
+.delay-2{animation-delay:.1s}
+.delay-3{animation-delay:.15s}
+.delay-4{animation-delay:.2s}
+.delay-5{animation-delay:.25s}
+
+@media(min-width:460px){.frame-outer{align-items:center;min-height:100vh}}
+@media(max-width:460px){.frame-outer{padding:0;background:#F0F3F7}.phone{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="frame-outer">
+<div class="phone">
+
+<!-- ============ SCREEN: HOME ============ -->
+<div class="screen" id="screen-home">
+  <div class="statusbar">
+    <span class="statusbar-time" id="clock">09:41</span>
+    <div class="statusbar-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4 2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-top">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar">AK</div>
+        <div>
+          <div class="header-greeting">Selamat pagi 👋</div>
+          <div class="header-name">Eanjovi Lazuardi</div>
+        </div>
+      </div>
+      <button class="notif-btn" aria-label="Notifikasi">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="saldo-card fade-up">
+    <div class="saldo-label">Saldo Rekening</div>
+    <div class="saldo-amount">Rp 9.999.999.999</div>
+    <div class="saldo-actions">
+      <div class="saldo-action">
+        <div class="saldo-action-icon"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></div>
+        <span>Transfer</span>
+      </div>
+      <div class="saldo-action">
+        <div class="saldo-action-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+        <span>Bayar</span>
+      </div>
+      <div class="saldo-action" onclick="goTo('pinjaman')">
+        <div class="saldo-action-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+        <span>Pinjaman</span>
+      </div>
+      <div class="saldo-action">
+        <div class="saldo-action-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93V18h-2v1.93C7.06 19.44 4.56 16.94 4.07 14H6v-2H4.07C4.56 9.06 7.06 6.56 10 6.07V8h2V6.07c2.94.49 5.44 2.99 5.93 5.93H16v2h1.93c-.49 2.94-2.99 5.44-5.93 5.93z"/></svg></div>
+        <span>Lainnya</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section fade-up delay-1">
+    <div class="section-title">Layanan Cepat</div>
+    <div class="quick-grid">
+      <div class="quick-item" onclick="goTo('pinjaman')">
+        <div class="quick-icon qi-green"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+        <span>Simulasi Pinjaman</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon qi-blue"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></div>
+        <span>Bayar Tagihan</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon qi-purple"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+        <span>Top Up</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon qi-orange"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5z"/></svg></div>
+        <span>Asuransi</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon qi-teal"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+        <span>Tarik Tunai</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon qi-pink"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+        <span>CS Online</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon qi-amber"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
+        <span>Referral</span>
+      </div>
+      <div class="quick-item">
+        <div class="quick-icon qi-red"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+        <span>Bantuan</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="promo-banner fade-up delay-2" onclick="goTo('pinjaman')">
+    <div class="promo-text">
+      <div class="promo-label">Promo Spesial</div>
+      <div class="promo-title">Pinjaman Bunga Ringan<br>5% / Bulan</div>
+      <div class="promo-pill">Cek Simulasi →</div>
+    </div>
+    <div class="promo-img">
+      <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+    </div>
+  </div>
+
+  <div class="section fade-up delay-3">
+    <div class="section-title">Transaksi Terakhir</div>
+    <div class="tx-list">
+      <div class="tx-item">
+        <div class="tx-icon qi-green"><svg viewBox="0 0 24 24" fill="none" stroke="#00B14F" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Transfer Masuk</div>
+          <div class="tx-date">Hari ini, 08.22</div>
+        </div>
+        <div class="tx-amount credit">+Rp 500.000</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon qi-orange"><svg viewBox="0 0 24 24" fill="#F97316"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Tokopedia</div>
+          <div class="tx-date">Kemarin, 14.05</div>
+        </div>
+        <div class="tx-amount debit">-Rp 250.000</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon qi-blue"><svg viewBox="0 0 24 24" fill="#3B82F6"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2z"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">PLN Listrik</div>
+          <div class="tx-date">25 Apr, 10.30</div>
+        </div>
+        <div class="tx-amount debit">-Rp 150.000</div>
+      </div>
+    </div>
+  </div>
+  <div style="height:80px"></div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchNav(this,'home')">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Beranda</span>
+    </button>
+    <button class="nav-item" onclick="switchNav(this,'pinjaman');goTo('pinjaman')">
+      <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      <span>Pinjaman</span>
+    </button>
+    <button class="nav-item" onclick="switchNav(this,'riwayat')">
+      <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+      <span>Riwayat</span>
+    </button>
+    <button class="nav-item" onclick="switchNav(this,'profil');goTo('profil')">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>Profil</span>
+    </button>
+  </nav>
+</div><!-- end screen-home -->
+
+<!-- ============ SCREEN: PINJAMAN ============ -->
+<div class="screen hidden" id="screen-pinjaman">
+  <div class="statusbar">
+    <span class="statusbar-time" id="clock2">09:41</span>
+    <div class="statusbar-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4 2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="calc-header-bar">
+    <button class="back-btn" onclick="goTo('home')" aria-label="Kembali">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <h2>Simulasi Pinjaman</h2>
+  </div>
+
+  <div class="form-card fade-up">
+    <label class="form-label">Jumlah pinjaman</label>
+    <div class="input-wrap">
+      <span class="input-prefix-tag">Rp</span>
+      <input type="text" id="pinjamanInput" placeholder="0" inputmode="numeric" value="1.000.000" oninput="formatPinjaman(this);hitung()">
+    </div>
+
+    <label class="form-label">Pilih tenor</label>
+    <div class="tenor-grid">
+      <button class="tenor-pill active" data-t="3" onclick="pilihTenor(this)">
+        <span class="tp-month">3 bln</span>
+        <span class="tp-sub">bunga 15%</span>
+      </button>
+      <button class="tenor-pill" data-t="6" onclick="pilihTenor(this)">
+        <span class="tp-month">6 bln</span>
+        <span class="tp-sub">bunga 30%</span>
+      </button>
+      <button class="tenor-pill" data-t="9" onclick="pilihTenor(this)">
+        <span class="tp-month">9 bln</span>
+        <span class="tp-sub">bunga 45%</span>
+      </button>
+      <button class="tenor-pill" data-t="12" onclick="pilihTenor(this)">
+        <span class="tp-month">12 bln</span>
+        <span class="tp-sub">bunga 60%</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="info-pills fade-up delay-1">
+    <div class="info-pill"><span class="dot"></span>Bunga flat 5%/bulan</div>
+    <div class="info-pill" id="pillTenor"><span class="dot"></span>Tenor 3 bulan</div>
+    <div class="info-pill" id="pillBunga"><span class="dot"></span>Total bunga 15%</div>
+  </div>
+
+  <div class="result-banner fade-up delay-2" id="resultBanner">
+    <div class="rb-label">Cicilan per bulan</div>
+    <div class="rb-amount" id="cicilanPerBulan">Rp 383.333</div>
+    <div class="rb-sub" id="cicilanSub">Selama 3 bulan</div>
+    <div class="rb-divider"></div>
+    <div class="rb-row">
+      <div class="rb-stat">
+        <div class="rb-stat-label">Pokok</div>
+        <div class="rb-stat-val" id="statPokok">Rp 1.000.000</div>
+      </div>
+      <div class="rb-stat" style="text-align:center">
+        <div class="rb-stat-label">Total bunga</div>
+        <div class="rb-stat-val" id="statBunga">Rp 150.000</div>
+      </div>
+      <div class="rb-stat" style="text-align:right">
+        <div class="rb-stat-label">Total bayar</div>
+        <div class="rb-stat-val" id="statTotal">Rp 1.150.000</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="schedule-card fade-up delay-3">
+    <div class="schedule-title">Jadwal Cicilan <span id="schedSubtitle">3 pembayaran</span></div>
+    <div class="sched-row head">
+      <div>Bln</div>
+      <div style="text-align:right">Cicilan</div>
+      <div style="text-align:right">Pokok</div>
+      <div style="text-align:right">Sisa</div>
+    </div>
+    <div id="schedBody"></div>
+  </div>
+
+  <button class="cta-btn fade-up delay-4">Ajukan Pinjaman Sekarang</button>
+  <div style="height:24px"></div>
+</div><!-- end screen-pinjaman -->
+
+<!-- ============ SCREEN: PROFIL ============ -->
+<div class="screen hidden" id="screen-profil">
+  <div class="statusbar">
+    <span class="statusbar-time">09:41</span>
+    <div class="statusbar-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4 2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="profile-header">
+    <div class="profile-avatar">EJ</div>
+    <div class="profile-name">Eanjovi Lazuardi</div>
+    <div class="profile-phone">000</div>
+  </div>
+
+  <div style="background:#fff;border-radius:20px;margin:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+    <div style="padding:14px 20px;border-bottom:1px solid #EFF1F5;display:flex;justify-content:space-between">
+      <span style="font-size:13px;color:#6B7280;font-weight:500">No. Rekening</span>
+      <span style="font-size:13px;font-weight:700;color:#1F2937">0912-3456-7890</span>
+    </div>
+    <div style="padding:14px 20px;display:flex;justify-content:space-between">
+      <span style="font-size:13px;color:#6B7280;font-weight:500">Bergabung sejak</span>
+      <span style="font-size:13px;font-weight:700;color:#1F2937">Januari 2024</span>
+    </div>
+  </div>
+
+  <div class="menu-list">
+    <div class="menu-item">
+      <div class="menu-item-icon qi-green"><svg viewBox="0 0 24 24" fill="#00B14F"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
+      <div class="menu-item-text"><div class="menu-item-title">Data Diri</div><div class="menu-item-sub">NIK, alamat, pekerjaan</div></div>
+      <div class="menu-item-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-icon qi-blue"><svg viewBox="0 0 24 24" fill="#3B82F6"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></div>
+      <div class="menu-item-text"><div class="menu-item-title">Keamanan Akun</div><div class="menu-item-sub">PIN, biometrik, kata sandi</div></div>
+      <div class="menu-item-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-icon qi-amber"><svg viewBox="0 0 24 24" fill="#D97706"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+      <div class="menu-item-text"><div class="menu-item-title">Rekening Tertaut</div><div class="menu-item-sub">Bank & e-wallet</div></div>
+      <div class="menu-item-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-item-icon qi-red"><svg viewBox="0 0 24 24" fill="#EF4444"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg></div>
+      <div class="menu-item-text"><div class="menu-item-title">Keluar</div><div class="menu-item-sub">Logout dari akun ini</div></div>
+      <div class="menu-item-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Beranda</span>
+    </button>
+    <button class="nav-item" onclick="goTo('pinjaman')">
+      <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      <span>Pinjaman</span>
+    </button>
+    <button class="nav-item" onclick="switchNav(this,'riwayat')">
+      <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+      <span>Riwayat</span>
+    </button>
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>Profil</span>
+    </button>
+  </nav>
+</div><!-- end screen-profil -->
+
+</div><!-- end phone -->
+</div><!-- end frame-outer -->
+
+<script>
+// ---- CLOCK ----
+function updateClock(){
+  const now=new Date();
+  const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  document.querySelectorAll('[id^="clock"]').forEach(el=>el.textContent=t);
+}
+updateClock();setInterval(updateClock,10000);
+
+// ---- NAVIGATION ----
+let currentScreen='home';
+function goTo(name){
+  document.querySelectorAll('.screen').forEach(s=>{
+    if(s.id==='screen-'+name){s.classList.remove('hidden')}
+    else{s.classList.add('hidden')}
+  });
+  currentScreen=name;
+  if(name==='pinjaman') hitung();
+}
+function switchNav(btn,name){
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ---- CALCULATOR ----
+const RATE=0.05;
+let tenor=3;
+
+function formatRp(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
+function getRaw(){
+  let v=(document.getElementById('pinjamanInput').value||'0').replace(/\./g,'').replace(/[^0-9]/g,'');
+  return parseInt(v)||0;
+}
+function formatPinjaman(el){
+  let raw=el.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+  let num=parseInt(raw)||0;
+  el.value=num.toLocaleString('id-ID');
+}
+function pilihTenor(btn){
+  document.querySelectorAll('.tenor-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  tenor=parseInt(btn.dataset.t);
+  hitung();
+}
+function hitung(){
+  const p=getRaw();
+  const t=tenor;
+  const pct=RATE*t*100;
+  document.getElementById('pillTenor').innerHTML='<span class="dot"></span>Tenor '+t+' bulan';
+  document.getElementById('pillBunga').innerHTML='<span class="dot"></span>Total bunga '+pct.toFixed(0)+'%';
+  if(!p){
+    ['cicilanPerBulan','statPokok','statBunga','statTotal'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('schedBody').innerHTML='';return;
+  }
+  const bunga=p*RATE*t;
+  const totalBayar=p+bunga;
+  const cicilan=totalBayar/t;
+  const pokokBln=p/t;
+  const bungaBln=bunga/t;
+  document.getElementById('cicilanPerBulan').textContent=formatRp(cicilan);
+  document.getElementById('cicilanSub').textContent='Selama '+t+' bulan';
+  document.getElementById('statPokok').textContent=formatRp(p);
+  document.getElementById('statBunga').textContent=formatRp(bunga);
+  document.getElementById('statTotal').textContent=formatRp(totalBayar);
+  document.getElementById('schedSubtitle').textContent=t+' pembayaran';
+  let rows='',sisa=p;
+  for(let i=1;i<=t;i++){
+    sisa-=pokokBln;if(i===t)sisa=0;
+    const isTot=i===t;
+    rows+=`<div class="sched-row${isTot?' total-row':''}">
+      <div><div class="sched-bulan">${i}</div></div>
+      <div class="sched-val">${formatRp(cicilan)}</div>
+      <div class="sched-val">${formatRp(pokokBln)}</div>
+      <div><div class="sched-val">${formatRp(Math.max(0,sisa))}</div></div>
+    </div>`;
+  }
+  document.getElementById('schedBody').innerHTML=rows;
+}
+hitung();
+</script>
+</body>
+</html>
