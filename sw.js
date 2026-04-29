@@ -1,6 +1,6 @@
 const CACHE_NAME = 'cicilanku-v1';
 const ASSETS = [
-  './kalkulator-cicilan.html',
+  './index.html',
   './manifest.json'
 ];
 
