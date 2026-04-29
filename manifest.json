@@ -1,7 +1,7 @@
 {
   "name": "CicilanKu – Kalkulator Pinjaman",
   "short_name": "CicilanKu",
-  "description": "Kalkulator cicilan pinjaman dengan bunga flat 5% per bulan",
+  "description": "Kalkulator cicilan pinjaman dengan bunga flat 4,95% per bulan",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
