@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CicilanKu">
+<meta name="theme-color" content="#00B14F">
+<title>CicilanKu – Simulasi Pinjaman</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--green:#00B14F;--green-dark:#009040;--green-light:#E6F7EE;--navy:#0D1B2A;--gray-50:#F7F8FA;--gray-100:#EFF1F5;--gray-200:#E2E5EB;--gray-400:#9AA3B0;--gray-600:#6B7280;--gray-800:#1F2937}
+html{height:100%;background:var(--navy)}
+body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--gray-800);background:#F0F3F7;max-width:480px;margin:0 auto}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;background:var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s .1s;max-width:480px;margin:0 auto}
+#splash.hide{opacity:0;pointer-events:none}
+.splash-icon{width:88px;height:88px;border-radius:26px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.splash-icon svg{width:50px;height:50px;fill:white}
+.splash-name{color:#fff;font-size:24px;font-weight:800}
+.splash-tag{color:rgba(255,255,255,.7);font-size:13px;margin-top:5px}
+.splash-dots{display:flex;gap:6px;margin-top:36px}
+.splash-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);transition:.3s}
+.splash-dot.on{background:#fff;width:22px;border-radius:4px}
+
+/* INSTALL BANNER */
+#installBanner{display:none;align-items:center;gap:12px;background:var(--navy);padding:12px 16px;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:200;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.3)}
+.ib-icon{width:38px;height:38px;border-radius:11px;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ib-icon svg{width:20px;height:20px;fill:#fff}
+.ib-text{flex:1}.ib-text strong{color:#fff;font-size:13px;display:block}.ib-text span{color:rgba(255,255,255,.5);font-size:11px}
+.ib-btn{background:var(--green);color:#fff;border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ib-x{color:rgba(255,255,255,.4);background:none;border:none;font-size:20px;cursor:pointer;padding:0 4px}
+
+/* STATUSBAR */
+.statusbar{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--navy);position:sticky;top:0;z-index:10}
+.statusbar-time{color:#fff;font-size:14px;font-weight:700}
+.statusbar-icons{display:flex;gap:6px;align-items:center}
+.statusbar-icons svg{width:15px;height:15px;fill:white}
+
+/* TOP BAR */
+.topbar{background:var(--navy);padding:6px 18px 22px;position:relative;overflow:hidden}
+.topbar::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(0,177,79,.1);right:-30px;top:-70px;pointer-events:none}
+.topbar-inner{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.app-icon{width:40px;height:40px;border-radius:13px;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,177,79,.4)}
+.app-icon svg{width:0px;height:22px;fill:white}
+.topbar-text{}
+.topbar-title{color:#fff;font-size:16px;font-weight:800}
+.topbar-sub{color:rgba(255,255,255,.55);font-size:11px;font-weight:500;margin-top:1px}
+.topbar-badge{position:absolute;right:0;top:0;background:rgba(0,177,79,.2);border:1px solid rgba(0,177,79,.4);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:#4ADE80}
+
+/* FORM CARD */
+.form-card{background:#fff;border-radius:20px;margin:15px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.form-section-title{font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.4px;text-transform:uppercase;margin-bottom:10px}
+.form-label{font-size:12px;font-weight:700;color:var(--gray-600);margin-bottom:6px;display:block}
+.input-wrap{display:flex;align-items:center;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:13px;overflow:hidden;transition:.2s}
+.input-wrap:focus-within{border-color:var(--green);background:#fff}
+.input-prefix{padding:0 13px;font-size:13px;font-weight:700;color:var(--gray-500);background:var(--gray-100);border-right:1.5px solid var(--gray-200);height:48px;display:flex;align-items:center;white-space:nowrap}
+.input-wrap input{border:none;outline:none;padding:0 13px;font-size:18px;font-weight:700;height:48px;flex:1;background:transparent;color:var(--gray-800);font-family:inherit;min-width:0}
+.input-wrap input::placeholder{color:var(--gray-300);font-weight:400;font-size:14px}
+
+/* SLIDER */
+.slider-labels{display:flex;justify-content:space-between;margin:8px 0 4px}
+.slider-hint{font-size:10px;color:var(--gray-400);font-weight:500}
+.slider-current{font-size:11px;color:var(--green);font-weight:700}
+input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:3px;background:var(--gray-200);outline:none;cursor:pointer;margin-bottom:4px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--green);box-shadow:0 2px 8px rgba(0,177,79,.45);cursor:pointer;border:2px solid #fff}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--gray-100);margin:16px 0}
+
+/* TENOR PILLS */
+.tenor-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tenor-label-row .form-label{margin:0}
+.bunga-badge{background:var(--green-light);color:var(--green-dark);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
+.tenor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tenor-pill{padding:11px 4px;border:1.5px solid var(--gray-200);border-radius:13px;background:#fff;cursor:pointer;text-align:center;transition:.18s;font-family:inherit}
+.tenor-pill:active{transform:scale(.93)}
+.tp-m{font-size:14px;font-weight:800;color:var(--gray-800);display:block}
+.tp-s{font-size:10px;font-weight:600;color:var(--gray-400);display:block;margin-top:2px}
+.tenor-pill.active{border-color:var(--green);background:var(--green-light)}
+.tenor-pill.active .tp-m{color:var(--green)}
+.tenor-pill.active .tp-s{color:#007A3A}
+
+/* RESULT BANNER */
+.result-banner{background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);border-radius:20px;margin:0 15px 10px;padding:20px;box-shadow:0 8px 24px rgba(0,177,79,.3)}
+.rb-label{color:rgba(255,255,255,.65);font-size:11px;font-weight:600;margin-bottom:3px}
+.rb-amount{color:#fff;font-size:30px;font-weight:800;letter-spacing:-.5px}
+.rb-per{color:rgba(255,255,255,.65);font-size:12px;font-weight:500;margin-top:2px}
+.rb-divider{height:1px;background:rgba(255,255,255,.18);margin:14px 0}
+.rb-stats{display:flex;justify-content:space-between}
+.rb-stat{}
+.rb-stat-label{color:rgba(255,255,255,.6);font-size:10px;font-weight:600}
+.rb-stat-val{color:#fff;font-size:13px;font-weight:700;margin-top:2px}
+
+/* INFO CHIPS */
+.info-chips{display:flex;gap:7px;padding:8px 15px 4px;overflow-x:auto;scrollbar-width:none}
+.info-chips::-webkit-scrollbar{display:none}
+.chip{background:#fff;border:1px solid var(--gray-200);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--gray-600);white-space:nowrap;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.chip-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+
+/* SCHEDULE CARD */
+.sched-card{background:#fff;border-radius:20px;margin:0 15px 30px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.sched-head{padding:14px 18px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-100)}
+.sched-head-title{font-size:13px;font-weight:700;color:var(--gray-800)}
+.sched-head-sub{font-size:11px;color:var(--gray-400);font-weight:500}
+.sched-labels{display:grid;grid-template-columns:30px 1fr 1fr 1fr;padding:8px 18px;background:var(--gray-50)}
+.sched-labels div{font-size:9px;font-weight:700;color:var(--gray-400);letter-spacing:.3px;text-transform:uppercase;text-align:right}
+.sched-labels div:first-child{text-align:left}
+.sched-row{display:grid;grid-template-columns:30px 1fr 1fr 1fr;padding:11px 18px;border-bottom:1px solid var(--gray-50);align-items:center}
+.sched-row:last-child{border-bottom:none}
+.sched-num{width:24px;height:24px;border-radius:7px;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--green)}
+.sched-val{font-size:11px;font-weight:600;color:var(--gray-800);text-align:right}
+.sched-row.last-row{background:var(--green-light)}
+.sched-row.last-row .sched-val{color:#007A3A;font-weight:700}
+.sched-total{display:grid;grid-template-columns:30px 1fr 1fr 1fr;padding:12px 18px;background:var(--navy);align-items:center}
+.sched-total-label{color:rgba(255,255,255,.6);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.sched-total-val{font-size:12px;font-weight:700;color:#fff;text-align:right}
+
+/* CTA */
+.cta-wrap{transition:transform 0.3s ease;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;padding:12px 15px 20px;background:rgba(240,243,247,.95);backdrop-filter:blur(10px);border-top:1px solid var(--gray-200)}
+.cta-btn{display:block;width:100%;background:var(--green);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;transition:.18s;box-shadow:0 4px 14px rgba(0,177,79,.35);letter-spacing:.2px}
+.cta-btn:active{transform:scale(.98);background:var(--green-dark)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .32s ease both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.1s}
+</style>
+</head>
+
+<body>
+  
+<!-- INSTALL BANNER -->
+<div id="installBanner">
+  <div class="ib-icon"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></div>
+  <div class="ib-text"><strong>Install CicilanKu</strong><span>Tambahkan ke layar utama HP kamu</span></div>
+  <button class="ib-btn" id="installBtn">Install</button>
+  <button class="ib-x" onclick="document.getElementById('installBanner').style.display='none'">×</button>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="app-icon"> MJ <svg viewBox="0 0 24 24"></svg></div>
+    <div class="topbar-text">
+      <div class="topbar-title">Simulasi Pinjaman</div>
+    </div>
+    <div class="topbar-badge">Created by Masjov</div>
+  </div>
+</div>
+
+<!-- FORM CARD -->
+<div class="form-card fu">
+  <div class="form-section-title">Nominal Pinjaman</div>
+  <div class="input-wrap">
+    <span class="input-prefix">Rp</span>
+    <input type="text" id="pinjamanInput" placeholder="0" inputmode="numeric" value="1.000.000" oninput="syncSlider(this);hitung()">
+  </div>
+  <div class="slider-labels">
+    <span class="slider-hint">Rp 100rb</span>
+    <span class="slider-current" id="sliderVal">Rp 1.000.000</span>
+    <span class="slider-hint">Rp 50jt</span>
+  </div>
+  <input type="range" id="pinjamanSlider" min="100000" max="50000000" step="100000" value="1000000" oninput="syncInput(this);hitung()">
+
+  <div class="divider"></div>
+
+  <div class="tenor-label-row">
+    <label class="form-label">Pilih Tenor</label>
+  </div>
+  <div class="tenor-grid">
+    <button class="tenor-pill active" data-t="3" onclick="pilihTenor(this)"><span class="tp-m">3 bln</span><span class="tp-s"> </span></button>
+    <button class="tenor-pill" data-t="6" onclick="pilihTenor(this)"><span class="tp-m">6 bln</span><span class="tp-s"> </span></button>
+    <button class="tenor-pill" data-t="9" onclick="pilihTenor(this)"><span class="tp-m">9 bln</span><span class="tp-s"> </span></button>
+    <button class="tenor-pill" data-t="12" onclick="pilihTenor(this)"><span class="tp-m">12 bln</span><span class="tp-s"> </span></button>
+  </div>
+</div>
+
+<!-- RESULT BANNER -->
+<div class="result-banner fu d1">
+  <div class="rb-label">Cicilan per bulan</div>
+  <div class="rb-amount" id="rCicilan">Rp 383.333</div>
+  <div class="rb-per" id="rPer">Selama 3 bulan</div>
+  <div class="rb-divider"></div>
+  <div class="rb-stats">
+    <div class="rb-stat"><div class="rb-stat-label">Pokok</div><div class="rb-stat-val" id="rPokok">Rp 1.000.000</div></div>
+    <div class="rb-stat" style="text-align:center"><div class="rb-stat-label">Total Bunga</div><div class="rb-stat-val" id="rBunga">Rp 150.000</div></div>
+    <div class="rb-stat" style="text-align:right"><div class="rb-stat-label">Total Bayar</div><div class="rb-stat-val" id="rTotal">Rp 1.150.000</div></div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="sched-card fu d3">
+  <div class="sched-head">
+    <div class="sched-head-title">Jadwal Cicilan</div>
+    <div class="sched-head-sub" id="schedSub">3 pembayaran</div>
+  </div>
+  <div class="sched-labels">
+    <div>Bln</div>
+    <div>Cicilan</div>
+    <div>Pokok</div>
+    <div>Sisa</div>
+  </div>
+  <div id="schedBody"></div>
+  <div class="sched-total" id="schedTotal">
+    <div></div>
+    <div class="sched-total-val" id="tTotal">—</div>
+    <div class="sched-total-val" id="tPokok">—</div>
+    <div class="sched-total-val">Rp 0</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap fu d4">
+  <button class="cta-btn">CREATED BY MASJOV</button>
+</div>
+
+<script>
+
+// SPLASH
+setTimeout(()=>{
+  const splash = document.getElementById('splash');
+  if(splash) splash.classList.add('hide');
+},1500);
+
+// CALCULATOR
+const RATE=0.0495;
+let tenor=3;
+function fmtRp(n){return'Rp '+Math.round(n).toLocaleString('id-ID')}
+function getRaw(){return parseInt((document.getElementById('pinjamanInput').value||'0').replace(/\./g,'').replace(/[^0-9]/g,''))||0}
+function syncSlider(el){
+  let n=Math.min(50000000,parseInt(el.value.replace(/\./g,'').replace(/[^0-9]/g,''))||0);
+  el.value=n.toLocaleString('id-ID');
+  document.getElementById('pinjamanSlider').value=n;
+  document.getElementById('sliderVal').textContent=fmtRp(n);
+}
+function syncInput(el){
+  const v=parseInt(el.value);
+  document.getElementById('pinjamanInput').value=v.toLocaleString('id-ID');
+  document.getElementById('sliderVal').textContent=fmtRp(v);
+}
+function pilihTenor(btn){
+  document.querySelectorAll('.tenor-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  tenor=parseInt(btn.dataset.t);
+  hitung();
+}
+function hitung(){
+  const p=getRaw(),t=tenor,pct=(RATE*t*100).toFixed(0);
+  const bungaEl = document.getElementById('bungaBadge');
+if(bungaEl) bungaEl.textContent = 'Bunga '+pct+'%';
+
+const chipTenor = document.getElementById('chipTenor');
+if(chipTenor) chipTenor.innerHTML = 'Tenor '+t+' bulan';
+
+const chipBunga = document.getElementById('chipBunga');
+if(chipBunga) chipBunga.innerHTML = 'Total bunga '+pct+'%';
+  if(!p){
+    ['rCicilan','rPokok','rBunga','rTotal'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('schedBody').innerHTML='';
+    document.getElementById('tTotal').textContent='—';
+    document.getElementById('tPokok').textContent='—';
+    return;
+  }
+  const bunga=p*RATE*t,total=p+bunga,cicilan=total/t,pBln=p/t;
+  document.getElementById('rCicilan').textContent=fmtRp(cicilan);
+  document.getElementById('rPer').textContent='Selama '+t+' bulan';
+  document.getElementById('rPokok').textContent=fmtRp(p);
+  document.getElementById('rBunga').textContent=fmtRp(bunga);
+  document.getElementById('rTotal').textContent=fmtRp(total);
+  document.getElementById('schedSub').textContent=t+' pembayaran';
+  document.getElementById('tTotal').textContent=fmtRp(total);
+  document.getElementById('tPokok').textContent=fmtRp(p);
+  let rows='',sisa=p;
+  for(let i=1;i<=t;i++){
+    sisa-=pBln;if(i===t)sisa=0;
+    rows+=`<div class="sched-row${i===t?' last-row':''}">
+      <div><div class="sched-num">${i}</div></div>
+      <div class="sched-val">${fmtRp(cicilan)}</div>
+      <div class="sched-val">${fmtRp(pBln)}</div>
+      <div class="sched-val">${fmtRp(Math.max(0,sisa))}</div>
+    </div>`;
+  }
+  document.getElementById('schedBody').innerHTML=rows;
+}
+hitung();
+
+// PWA
+let dp;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;document.getElementById('installBanner').style.display='flex'});
+document.getElementById('installBtn').addEventListener('click',()=>{if(dp){dp.prompt();dp.userChoice.then(()=>{dp=null;document.getElementById('installBanner').style.display='none'})}});
+window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').style.display='none'});
+if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+
+// CTA
+let lastScroll = 0;
+const cta = document.querySelector('.cta-wrap');
+
+window.addEventListener('scroll', () => {
+  const current = window.scrollY;
+
+  if (!cta) return;
+
+  if (current > lastScroll) {
+    cta.style.transform = 'translateY(150%)'; // langsung turun
+  } else {
+    cta.style.transform = 'translateY(0)';
+  }
+
+  lastScroll = current;
+});;
+</script>
+</body>
+</html>
